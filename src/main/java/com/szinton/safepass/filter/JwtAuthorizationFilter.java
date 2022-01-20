@@ -36,6 +36,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                     String username = decodedJWT.getSubject();
                     UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, null);
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                    log.info("Authorization successful.");
                     filterChain.doFilter(request, response);
                 } catch (Exception ex) {
                     log.error("Error during authentication: {}", ex.getMessage());

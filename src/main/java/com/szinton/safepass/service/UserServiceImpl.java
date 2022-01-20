@@ -1,6 +1,7 @@
 package com.szinton.safepass.service;
 
 import com.szinton.safepass.domain.User;
+import com.szinton.safepass.dto.UserDto;
 import com.szinton.safepass.repo.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,15 +39,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public void saveUser(User user) {
+    public void saveUser(UserDto savedUser) {
         log.info("Saving new user to the database.");
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        String hashedPassword = passwordEncoder.encode(savedUser.getPassword());
+        User user = new User(savedUser.getUsername(), hashedPassword);
         userRepository.save(user);
-    }
-
-    @Override
-    public User getUser(String username) {
-        log.info("Fetching user \"{}\".", username);
-        return userRepository.findByUsername(username);
     }
 }

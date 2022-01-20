@@ -1,11 +1,8 @@
 package com.szinton.safepass.service;
 
-import com.szinton.safepass.domain.User;
+import com.szinton.safepass.dto.UserDto;
 
 public interface UserService {
 
-    void saveUser(User user);
-
-    User getUser(String username);
-
+    void saveUser(UserDto user);
 }

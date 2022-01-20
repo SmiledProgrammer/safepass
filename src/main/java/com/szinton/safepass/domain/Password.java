@@ -9,23 +9,27 @@ import javax.persistence.*;
 import static javax.persistence.GenerationType.AUTO;
 
 @Entity
-@Table(name = "users")
+@Table(name = "passwords")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+public class Password {
     @Id
     @GeneratedValue(strategy = AUTO)
     private Long id;
 
-    @Column(length = 32, nullable = false)
-    private String username;
+    @Column(unique = true, nullable = false)
+    private String serviceName;
 
-    @Column(length = 64, nullable = false)
+    @Column(length = 512, nullable = false)
     private String password;
 
-    public User(String username, String password) {
-        this.username = username;
+    @Column(nullable = false)
+    private Long userId;
+
+    public Password(String serviceName, String password, Long userId) {
+        this.serviceName = serviceName;
         this.password = password;
+        this.userId = userId;
     }
 }

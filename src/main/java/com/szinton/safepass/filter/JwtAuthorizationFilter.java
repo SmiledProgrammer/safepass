@@ -39,7 +39,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                     log.info("Authorization successful.");
                     filterChain.doFilter(request, response);
                 } catch (Exception ex) {
-                    log.error("Error during authentication: {}", ex.getMessage());
+                    log.error("Error during authorization: {}", ex.getMessage()); // TODO: add token expiration handling
                     response.sendError(FORBIDDEN.value());
                 }
             } else {

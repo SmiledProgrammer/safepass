@@ -1,0 +1,8 @@
+DROP TABLE IF EXISTS users;
+
+CREATE TABLE users (
+    id BIGINT NOT NULL,
+    password VARCHAR(64) NOT NULL AUTO_INCREMENT,
+    username VARCHAR(32) NOT NULL,
+    PRIMARY KEY (id)
+);

@@ -1,5 +1,6 @@
 package com.szinton.safepass.api;
 
+import com.szinton.safepass.dto.MasterPasswordDto;
 import com.szinton.safepass.dto.UserDto;
 import com.szinton.safepass.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -18,8 +19,9 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/users")
-    public ResponseEntity<Void> saveUser(@RequestBody @Valid UserDto userDto) {
-        userService.saveUser(userDto);
-        return new ResponseEntity<>(CREATED);
+    public ResponseEntity<MasterPasswordDto> registerUser(
+            @RequestBody @Valid UserDto userDto) {
+        MasterPasswordDto masterPassword = userService.registerUser(userDto);
+        return new ResponseEntity<>(masterPassword, CREATED);
     }
 }

@@ -2,7 +2,7 @@ package com.szinton.safepass.security;
 
 public interface PasswordEncryptionAlgorithm {
 
-    String encrypt(String password, String secretKey);
+    String encrypt(String plainText, String secretKey);
 
-    String decrypt(String encryptedPassword, String secretKey);
+    String decrypt(String cipherText, String secretKey);
 }

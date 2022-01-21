@@ -3,10 +3,11 @@ package com.szinton.safepass.service;
 import com.szinton.safepass.domain.Password;
 import com.szinton.safepass.domain.User;
 import com.szinton.safepass.dto.PasswordDto;
+import com.szinton.safepass.dto.ServicePasswordDto;
 import com.szinton.safepass.repo.PasswordRepository;
-import com.szinton.safepass.repo.UserRepository;
 import com.szinton.safepass.security.PasswordEncryptionAlgorithm;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -20,12 +21,13 @@ import java.util.stream.Collectors;
 public class PasswordServiceImpl implements PasswordService {
 
     private final PasswordRepository passwordRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final PasswordEncryptionAlgorithm encryptionAlgorithm;
 
     @Override
     public void savePassword(String username, String masterPassword, PasswordDto savedPassword) {
-        Long userId = getUserId(username);
+        User user = getUserWithVerifiedMasterPassword(username, masterPassword);
+        Long userId = user.getId();
         Password emptyRecord = passwordRepository.findByUserIdAndServiceName(userId, savedPassword.getServiceName());
         if (emptyRecord != null) {
             throw new IllegalArgumentException("There is already a password for this service.");
@@ -36,15 +38,17 @@ public class PasswordServiceImpl implements PasswordService {
     }
 
     @Override
-    public String getPassword(String username, String masterPassword, String serviceName) {
-        Long userId = getUserId(username);
+    public ServicePasswordDto getPassword(String username, String masterPassword, String serviceName) {
+        User user = getUserWithVerifiedMasterPassword(username, masterPassword);
+        Long userId = user.getId();
         Password record = getPasswordRecord(userId, serviceName);
-        return encryptionAlgorithm.decrypt(record.getPassword(), masterPassword);
+        String password = encryptionAlgorithm.decrypt(record.getPassword(), masterPassword);
+        return new ServicePasswordDto(password);
     }
 
     @Override
     public List<String> getPasswordsServices(String username) {
-        Long userId = getUserId(username);
+        Long userId = userService.getUser(username).getId();
         List<Password> records = passwordRepository.findByUserId(userId);
         return records.stream()
                 .map(Password::getServiceName)
@@ -53,7 +57,8 @@ public class PasswordServiceImpl implements PasswordService {
 
     @Override
     public void updatePassword(String username, String masterPassword, PasswordDto updatedPassword) {
-        Long userId = getUserId(username);
+        User user = getUserWithVerifiedMasterPassword(username, masterPassword);
+        Long userId = user.getId();
         Password record = getPasswordRecord(userId, updatedPassword.getServiceName());
         String encryptedPassword = encryptionAlgorithm.encrypt(updatedPassword.getPassword(), masterPassword);
         record.setPassword(encryptedPassword);
@@ -62,22 +67,14 @@ public class PasswordServiceImpl implements PasswordService {
 
     @Override
     public void deletePassword(String username, String serviceName) {
-        Long userId = getUserId(username);
+        Long userId = userService.getUser(username).getId();
         Password record = passwordRepository.findByUserIdAndServiceName(userId, serviceName);
         if (record != null) {
             if (!Objects.equals(userId, record.getUserId())) {
-                throw new IllegalArgumentException("Users identifiers mismatching.");
+                throw new AccessDeniedException("Users identifiers mismatching.");
             }
             passwordRepository.delete(record);
         }
-    }
-
-    private Long getUserId(String username) {
-        User record = userRepository.findByUsername(username);
-        if (record == null) {
-            throw new IllegalArgumentException("User with the given identifier not found.");
-        }
-        return record.getId();
     }
 
     private Password getPasswordRecord(Long userId, String serviceName) {
@@ -86,8 +83,18 @@ public class PasswordServiceImpl implements PasswordService {
             throw new IllegalArgumentException("No password for the specified service found.");
         }
         if (!Objects.equals(userId, record.getUserId())) {
-            throw new IllegalArgumentException("Users identifiers mismatching.");
+            throw new AccessDeniedException("Users identifiers mismatching.");
         }
         return record;
+    }
+
+    private User getUserWithVerifiedMasterPassword(String username, String masterPassword) {
+        User user = userService.getUser(username);
+        String actualUsername = user.getUsername();
+        String decryptedUsername = encryptionAlgorithm.decrypt(user.getEncryptedUsername(), masterPassword);
+        if (!actualUsername.equals(decryptedUsername)) {
+            throw new AccessDeniedException("Incorrect master password.");
+        }
+        return user;
     }
 }

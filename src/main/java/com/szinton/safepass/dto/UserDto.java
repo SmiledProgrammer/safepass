@@ -12,7 +12,7 @@ import javax.validation.constraints.Size;
 @AllArgsConstructor
 public class UserDto {
     @NotBlank
-    @Size(min = 8, max = 32)
+    @Size(min = 6, max = 32)
     private String username;
     @NotBlank
     @Size(min = 12, max = 128) // TODO: enhance password validation

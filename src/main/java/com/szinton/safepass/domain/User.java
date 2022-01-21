@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
-import static javax.persistence.GenerationType.AUTO;
+import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
 @Table(name = "users")
@@ -15,17 +15,21 @@ import static javax.persistence.GenerationType.AUTO;
 @AllArgsConstructor
 public class User {
     @Id
-    @GeneratedValue(strategy = AUTO)
+    @GeneratedValue(strategy = IDENTITY)
     private Long id;
 
     @Column(length = 32, nullable = false)
     private String username;
 
+    @Column(length = 512, nullable = false)
+    private String encryptedUsername;
+
     @Column(length = 64, nullable = false)
     private String password;
 
-    public User(String username, String password) {
+    public User(String username, String encryptedUsername, String password) {
         this.username = username;
+        this.encryptedUsername = encryptedUsername;
         this.password = password;
     }
 }

@@ -3,6 +3,7 @@ package com.szinton.safepass.service;
 import com.szinton.safepass.domain.User;
 import com.szinton.safepass.dto.MasterPasswordDto;
 import com.szinton.safepass.dto.UserDto;
+import com.szinton.safepass.exception.ResourceNotFoundException;
 import com.szinton.safepass.repo.UserRepository;
 import com.szinton.safepass.security.PasswordEncryptionAlgorithm;
 import lombok.RequiredArgsConstructor;
@@ -65,7 +66,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public User getUser(String username) {
         User record = userRepository.findByUsername(username);
         if (record == null) {
-            throw new IllegalArgumentException("User with the given username not found.");
+            throw new ResourceNotFoundException("User with the given username not found.");
         }
         return record;
     }

@@ -8,13 +8,15 @@ import com.szinton.safepass.dto.PasswordDto;
 import com.szinton.safepass.dto.ServicePasswordDto;
 import com.szinton.safepass.service.PasswordService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.async.DeferredResult;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-
 import java.util.List;
+import java.util.concurrent.ForkJoinPool;
 
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
@@ -36,12 +38,21 @@ public class PasswordController {
     }
 
     @GetMapping("/passwords")
-    public ResponseEntity<ServicePasswordDto> getPassword(
+    public DeferredResult<ResponseEntity<ServicePasswordDto>> getPassword(
             @RequestHeader(name = "Master-Password") @NotNull String masterPassword,
             @RequestHeader(name = "Authorization") @NotNull String authHeader,
             @RequestParam @NotNull String serviceName) {
-        ServicePasswordDto password = passwordService.getPassword(getSubjectFromJwtHeader(authHeader), masterPassword, serviceName);
-        return new ResponseEntity<>(password, OK);
+        DeferredResult<ResponseEntity<ServicePasswordDto>> output = new DeferredResult<>();
+        ForkJoinPool.commonPool().submit(() -> {
+            try {
+                Thread.sleep(1000);
+                ServicePasswordDto password = passwordService.getPassword(getSubjectFromJwtHeader(authHeader), masterPassword, serviceName);
+                output.setResult(new ResponseEntity<>(password, OK));
+            } catch (Exception ex) {
+                output.setErrorResult(ex);
+            }
+        });
+        return output;
     }
 
     @GetMapping("/passwords/services")
@@ -52,12 +63,21 @@ public class PasswordController {
     }
 
     @PutMapping("/passwords")
-    public ResponseEntity<Void> updatePassword(
+    public DeferredResult<ResponseEntity<Void>> updatePassword(
             @RequestHeader(name = "Master-Password") @NotNull String masterPassword,
             @RequestHeader(name = "Authorization") @NotNull String authHeader,
             @RequestBody @Valid PasswordDto passwordDto) {
-        passwordService.updatePassword(getSubjectFromJwtHeader(authHeader), masterPassword, passwordDto);
-        return new ResponseEntity<>(OK);
+        DeferredResult<ResponseEntity<Void>> output = new DeferredResult<>();
+        ForkJoinPool.commonPool().submit(() -> {
+            try {
+                Thread.sleep(1000);
+                passwordService.updatePassword(getSubjectFromJwtHeader(authHeader), masterPassword, passwordDto);
+                output.setResult(new ResponseEntity<>(OK));
+            } catch (Exception ex) {
+                output.setErrorResult(ex);
+            }
+        });
+        return output;
     }
 
     @DeleteMapping("/passwords")

@@ -5,6 +5,7 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,7 +21,6 @@ import java.util.List;
 import java.util.Set;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.HttpStatus.FORBIDDEN;
 
 @Slf4j
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
@@ -46,9 +46,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                     log.info("Authorization successful.");
                     filterChain.doFilter(request, response);
                 } catch (Exception ex) {
-                    // TODO: add complex exception handling as apparently all exceptions are coming here
-                    log.error("Error during authorization: {}", ex.getMessage()); // TODO: add token expiration handling
-                    response.sendError(FORBIDDEN.value());
+                    throw new AccessDeniedException("Authorization failure.");
                 }
             } else {
                 filterChain.doFilter(request, response);

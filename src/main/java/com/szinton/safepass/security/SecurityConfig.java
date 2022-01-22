@@ -34,6 +34,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         JwtAuthenticationFilter authenticationFilter = new JwtAuthenticationFilter(authenticationManagerBean());
         authenticationFilter.setFilterProcessesUrl("/api/login");
         http.csrf().disable();
+        http.headers().xssProtection();
+        http.headers().contentSecurityPolicy("script-src 'self'");
         http.sessionManagement().sessionCreationPolicy(STATELESS);
         http.authorizeRequests().antMatchers("/api/login", "/api/users", "/h2/**").permitAll(); // TODO: remove /h2
         http.authorizeRequests().anyRequest().authenticated();

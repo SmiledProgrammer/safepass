@@ -1,5 +1,6 @@
 package com.szinton.safepass.dto;
 
+import com.szinton.safepass.validation.SafeCharactersOnly;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,10 +12,12 @@ import javax.validation.constraints.Size;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PasswordDto {
-    @NotBlank
-    @Size(max = 255)
+    @NotBlank(message = "Service name cannot be blank.")
+    @Size(max = 255, message = "Service name too long.")
+    @SafeCharactersOnly(message = "Illegal characters used in the service name. Only letters, digits, dots and dashes are allowed.")
     private String serviceName;
-    @NotBlank
-    @Size(max = 512)
+
+    @NotBlank(message = "Password cannot be blank.")
+    @Size(max = 512, message = "Password too long.")
     private String password;
 }

@@ -27,6 +27,7 @@ import static org.springframework.http.HttpStatus.OK;
 public class PasswordController {
 
     private final PasswordService passwordService;
+    private final Algorithm jwtAlgorithm;
 
     @PostMapping("/passwords")
     public ResponseEntity<Void> savePassword(
@@ -90,8 +91,7 @@ public class PasswordController {
 
     private String getSubjectFromJwtHeader(String jwtHeader) {
         String jwt = jwtHeader.substring("Bearer ".length());
-        Algorithm algorithm = Algorithm.HMAC256("secret".getBytes()); // TODO: create util class to store this
-        JWTVerifier verifier = JWT.require(algorithm).build();
+        JWTVerifier verifier = JWT.require(jwtAlgorithm).build();
         DecodedJWT decodedJWT = verifier.verify(jwt);
         return decodedJWT.getSubject();
     }

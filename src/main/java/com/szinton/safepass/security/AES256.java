@@ -1,5 +1,6 @@
 package com.szinton.safepass.security;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.crypto.Cipher;
@@ -16,9 +17,12 @@ import static javax.crypto.Cipher.DECRYPT_MODE;
 import static javax.crypto.Cipher.ENCRYPT_MODE;
 
 @Slf4j
+@RequiredArgsConstructor
 public class AES256 implements PasswordEncryptionAlgorithm {
-    private static final String SALT = "salt"; // TODO: store securely
-    private static final byte[] IV = { -73, -108, -28, 5, 46, -75, 71, 15, -26, -61, -93, -57, -11, 51, -58, -124 }; // TODO: store securely
+
+    private static final byte[] IV = { -73, -108, -28, 5, 46, -75, 71, 15, -26, -61, -93, -57, -11, 51, -58, -124 };
+
+    private final String salt;
 
     @Override
     public String encrypt(String plainText, String secretKey) {
@@ -26,7 +30,7 @@ public class AES256 implements PasswordEncryptionAlgorithm {
             IvParameterSpec ivSpec = new IvParameterSpec(IV);
 
             SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-            KeySpec keySpec = new PBEKeySpec(secretKey.toCharArray(), SALT.getBytes(), 65536, 256);
+            KeySpec keySpec = new PBEKeySpec(secretKey.toCharArray(), salt.getBytes(), 65536, 256);
             SecretKey tmpKey = keyFactory.generateSecret(keySpec);
             SecretKeySpec key = new SecretKeySpec(tmpKey.getEncoded(), "AES");
 
@@ -46,7 +50,7 @@ public class AES256 implements PasswordEncryptionAlgorithm {
             IvParameterSpec ivSpec = new IvParameterSpec(IV);
 
             SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-            KeySpec keySpec = new PBEKeySpec(secretKey.toCharArray(), SALT.getBytes(), 65536, 256);
+            KeySpec keySpec = new PBEKeySpec(secretKey.toCharArray(), salt.getBytes(), 65536, 256);
             SecretKey tmpKey = keyFactory.generateSecret(keySpec);
             SecretKeySpec key = new SecretKeySpec(tmpKey.getEncoded(), "AES");
 

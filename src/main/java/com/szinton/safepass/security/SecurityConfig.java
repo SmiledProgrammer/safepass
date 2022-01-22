@@ -1,5 +1,6 @@
 package com.szinton.safepass.security;
 
+import com.auth0.jwt.algorithms.Algorithm;
 import com.szinton.safepass.filter.JwtAuthenticationFilter;
 import com.szinton.safepass.filter.JwtAuthorizationFilter;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final UserDetailsService userDetailsService;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final Algorithm jwtAlgorithm;
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -31,16 +33,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        JwtAuthenticationFilter authenticationFilter = new JwtAuthenticationFilter(authenticationManagerBean());
+        JwtAuthenticationFilter authenticationFilter = new JwtAuthenticationFilter(authenticationManagerBean(), jwtAlgorithm);
         authenticationFilter.setFilterProcessesUrl("/api/login");
         http.csrf().disable();
         http.headers().xssProtection();
         http.headers().contentSecurityPolicy("script-src 'self'");
         http.sessionManagement().sessionCreationPolicy(STATELESS);
         http.authorizeRequests().antMatchers("/api/login", "/api/users", "/h2/**").permitAll(); // TODO: remove /h2
+        http.authorizeRequests().antMatchers("/login", "/register").permitAll();
         http.authorizeRequests().anyRequest().authenticated();
         http.addFilter(authenticationFilter);
-        http.addFilterBefore(new JwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(new JwtAuthorizationFilter(jwtAlgorithm), UsernamePasswordAuthenticationFilter.class);
+        http.formLogin();
     }
 
     @Bean

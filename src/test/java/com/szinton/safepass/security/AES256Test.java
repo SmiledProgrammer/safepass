@@ -8,7 +8,7 @@ class AES256Test {
 
     @Test
     void encryptionDecryption() {
-        PasswordEncryptionAlgorithm aes = new AES256();
+        PasswordEncryptionAlgorithm aes = new AES256("salt");
         String text = "Secret Password";
         String secretKey = "Secret Key";
 

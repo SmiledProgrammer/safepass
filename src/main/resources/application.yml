@@ -11,6 +11,24 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
+  thymeleaf:
+    cache: false
+    check-template: true
+    check-template-location: true
+    servlet:
+      content-type: text/html
+    enabled: true
+    encoding: UTF-8
+    mode: HTML
+    prefix: classpath:templates/
+    suffix: .html
+    view-names: register, master-password, login, login-error, vault
+  cache:
+    type: none
+  web:
+    resources:
+      chain:
+        cache: false
 server:
   port: 8443
   ssl:
@@ -20,11 +38,14 @@ server:
     key-store-password: ${CERT_PASSWORD}
     key-password: ${CERT_PASSWORD}
     key-alias: safepass
-#logging:
-#  level:
-#    org:
-#      springframework:
-#        security: DEBUG
+  servlet:
+    session:
+      tracking-modes: cookie
+logging:
+  level:
+    org:
+      springframework:
+        security: TRACE
 #  h2:
 #    console:
 #      enabled: true

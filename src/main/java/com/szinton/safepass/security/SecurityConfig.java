@@ -25,6 +25,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final UserDetailsService userDetailsService;
     private final BCryptPasswordEncoder passwordEncoder;
     private final Algorithm jwtAlgorithm;
+    private final AuthenticationSuccessHandler authenticationSuccessHandler;
+    private final LimitAuthenticationFailureHandler authenticationFailureHandler;
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -33,18 +35,26 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        JwtAuthenticationFilter authenticationFilter = new JwtAuthenticationFilter(authenticationManagerBean(), jwtAlgorithm);
+        JwtAuthenticationFilter authenticationFilter = new JwtAuthenticationFilter(authenticationManagerBean());
         authenticationFilter.setFilterProcessesUrl("/api/login");
+        authenticationFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler);
+        authenticationFilter.setAuthenticationFailureHandler(authenticationFailureHandler);
+
         http.csrf().disable();
+
         http.headers().xssProtection();
         http.headers().contentSecurityPolicy("script-src 'self'");
         http.sessionManagement().sessionCreationPolicy(STATELESS);
+
         http.authorizeRequests().antMatchers("/api/login", "/api/users", "/h2/**").permitAll(); // TODO: remove /h2
-        http.authorizeRequests().antMatchers("/login", "/register").permitAll();
-        http.authorizeRequests().anyRequest().authenticated();
+        http.authorizeRequests().antMatchers("/register", "/master-password", "/login", "/login-error", "/vault", "/error").permitAll();
+//        http.authorizeRequests().anyRequest().authenticated(); // TODO: uncomment
+
         http.addFilter(authenticationFilter);
         http.addFilterBefore(new JwtAuthorizationFilter(jwtAlgorithm), UsernamePasswordAuthenticationFilter.class);
-        http.formLogin();
+
+        http.formLogin().loginPage("/login").loginProcessingUrl("/api/login");
+        http.logout().logoutSuccessUrl("/login");
     }
 
     @Bean

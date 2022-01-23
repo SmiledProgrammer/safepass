@@ -42,7 +42,7 @@ public class StrongPasswordValidator implements ConstraintValidator<StrongPasswo
         if (!errorMessages.isEmpty()) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate(
-                            StringUtils.join(errorMessages, ";"))
+                            StringUtils.join(errorMessages, " "))
                     .addConstraintViolation();
             return false;
         }

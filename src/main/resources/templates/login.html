@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <title>Login</title>
+</head>
+<body style="font-family: Verdana, sans-serif">
+<h1>Safepass</h1>
+<h2>Log in</h2>
+<form th:action="@{/api/login}" method="post">
+    <label for="username">Username</label>:
+    <input type="text" id="username" name="username" autofocus="autofocus"/> <br/>
+    <label for="password">Password</label>:
+    <input type="password" id="password" name="password"/> <br/>
+    <input type="submit" value="Log in">
+    <div th:if="${loginError}">
+        <ul>
+            <li>Wrong user or password.</li>
+        </ul>
+    </div>
+</form>
+<a th:href="@{/register}">Don't have an account yet? Create one by clicking here!</a>
+</body>
+</html>

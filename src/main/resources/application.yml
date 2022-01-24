@@ -29,6 +29,10 @@ spring:
     resources:
       chain:
         cache: false
+#  h2:
+#    console:
+#      enabled: true
+#      path: /h2
 server:
   port: 8443
   ssl:
@@ -38,15 +42,11 @@ server:
     key-store-password: ${CERT_PASSWORD}
     key-password: ${CERT_PASSWORD}
     key-alias: safepass
-  servlet:
-    session:
-      tracking-modes: cookie
+#  servlet:
+#    session:
+#      tracking-modes: cookie
 logging:
   level:
     org:
       springframework:
         security: TRACE
-#  h2:
-#    console:
-#      enabled: true
-#      path: /h2

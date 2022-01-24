@@ -35,6 +35,6 @@ public class AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccess
                 .withIssuer(request.getRequestURL().toString())
                 .sign(jwtAlgorithm);
         response.setHeader("Access-Token", accessToken);
-        super.onAuthenticationSuccess(request, response, authentication);
+//        super.onAuthenticationSuccess(request, response, authentication);
     }
 }

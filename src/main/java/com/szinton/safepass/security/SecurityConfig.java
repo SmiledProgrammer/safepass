@@ -46,9 +46,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.headers().contentSecurityPolicy("script-src 'self'");
         http.sessionManagement().sessionCreationPolicy(STATELESS);
 
-        http.authorizeRequests().antMatchers("/api/login", "/api/users", "/h2/**").permitAll(); // TODO: remove /h2
+        http.authorizeRequests().antMatchers("/api/login", "/api/users").permitAll();
         http.authorizeRequests().antMatchers("/register", "/master-password", "/login", "/login-error", "/vault", "/error").permitAll();
-//        http.authorizeRequests().anyRequest().authenticated(); // TODO: uncomment
+        http.authorizeRequests().anyRequest().authenticated();
 
         http.addFilter(authenticationFilter);
         http.addFilterBefore(new JwtAuthorizationFilter(jwtAlgorithm), UsernamePasswordAuthenticationFilter.class);
